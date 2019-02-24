@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<title>设置线、面可编辑</title>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=xwSllXKqUhKc0Zsilc91trT5"></script>
+	<style type="text/css">
+	body, html{width: 100%;height:100%;margin:0;font-family:"微软雅黑";}
+	#allmap {height:100%; width: 100%;}
+	</style>
+</head>
+<body>
+	<!-- -->
+	<div id="allmap" style="position:absolute;z-index:1;top:100;left:20;">
+	<!--<img src="/base.png">-->
+	</div>
+	<!--2048*1421-->
+	<div style="position:absolute;z-index:2;top:100;left:20;">	
+		<img src="/subway-graph-transparent.jpg" style="width:1280px;height:height:888px;margin-left:220px;margin-top:-10px;">
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+	//创建和初始化地图函数：
+    function initMap(){ 
+		//创建地图
+        var map = new BMap.Map("allmap");//在百度地图容器中创建一个地图
+        var point = new BMap.Point(113.685278,34.759434);//定义一个中心点坐标
+        map.centerAndZoom(point,13);//设定地图的中心点和坐标并将地图显示在地图容器中
+		
+		//单击获取点击的经纬度
+		map.addEventListener("click",function(e){
+			//alert(e.point.lng + "," + e.point.lat);
+		    $("#xPoint").val(e.point.lng);
+            $('#yPoint').val(e.point.lat);
+		});
+		
+        window.map = map;//将map变量存储在全局
+		
+		
+        //设置地图事件  
+		map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+		
+        //向地图添加控件 
+		//向地图中添加缩放控件
+		var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+		map.addControl(ctrl_nav);
+		//向地图中添加缩略图控件
+		var ctrl_ove = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:1});
+		map.addControl(ctrl_ove);
+		//向地图中添加比例尺控件
+		var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+		map.addControl(ctrl_sca);		
+    }
+     
+    initMap();//创建和初始化地图
+</script>

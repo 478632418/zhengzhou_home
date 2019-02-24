@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<script  src="http://libs.baidu.com/jquery/1.7.2/jquery.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=xwSllXKqUhKc0Zsilc91trT5"></script>
+	<title>设置线、面可编辑</title>
+</head>
+<body>
+	<div id="location">
+		<div style="line-height:30px;font-size:16px;">
+			<input id="location-list" style="width:100%;height:25px;"/>
+		</div>
+		<div id="ipt-location">
+			<dl>
+				<dt style="width:300px;">输入纵坐标：<input type="text" name="" id="xPoint" value="" /></dt>
+				<dd style="width:300px;">输入横坐标：<input type="text" name="" id="yPoint" value="" /></dd>
+				<dd style="width:300px;">输入地名：<input type="text" name="" id="keywords" value="" /></dd>
+				<dd style="width:120px;"> <button id="search" value="搜索" title="搜索">&nbsp;&nbsp;搜 &nbsp; &nbsp;索&nbsp;&nbsp;</button></dd>
+				<dd style="width:120px;"> <button id="addPoint" value="添加线路点" title="添加线路点">添加线路点</button></dd>
+				<dd style="width:120px;"> <button id="btn" value="点击我生成路线" title="点击我生成路线">添加线路点</button></dd>
+			</dl>
+		</div>
+	</div>
+	<div id="allmap">	
+	</div>
+</body>
+</html>
+<script type="text/javascript">
+ //创建和初始化地图函数：
+    function initMap(){ 
+		//创建地图
+        var map = new BMap.Map("allmap");//在百度地图容器中创建一个地图
+        var point = new BMap.Point(113.685278,34.938597);//定义一个中心点坐标
+        map.centerAndZoom(point,13);//设定地图的中心点和坐标并将地图显示在地图容器中
+		
+		//单击获取点击的经纬度
+		map.addEventListener("click",function(e){
+			//alert(e.point.lng + "," + e.point.lat);
+		    $("#xPoint").val(e.point.lng);
+            $('#yPoint').val(e.point.lat);
+		});
+		
+        window.map = map;//将map变量存储在全局
+		
+		
+        //设置地图事件  
+		map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+		
+        //向地图添加控件 
+		//向地图中添加缩放控件
+		var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+		map.addControl(ctrl_nav);
+		//向地图中添加缩略图控件
+		var ctrl_ove = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:1});
+		map.addControl(ctrl_ove);
+		//向地图中添加比例尺控件
+		var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+		map.addControl(ctrl_sca);		
+    }
+     
+    initMap();//创建和初始化地图
+    Uc.getTilesUrl=function(a,b,c){
+		var x=a.x,y=a.y,e=1,z=b;
+		return "/subway-graph-transparent.jpg";
+	};
+	
+    var _index = 0;
+    //相邻坐标点
+    var pointArray = [];
+    var allMapPointArray = [];
+    $("#addPoint").click(function(){
+        var xpoint = $("#xPoint").val().trim();
+        var ypoint = $('#yPoint').val().trim();
+        pointArray.push(new BMap.Point(xpoint, ypoint));         
+        $("#location-list").val($("#location-list").val()+xpoint+","+ypoint+";");
+    });
+     
+    $('#btn').on('click', function () {
+		var polyline_ = new BMap.Polyline(pointArray, {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+		map.addOverlay(polyline_);
+	
+		for(var i=0;i<pointArray.length;i++){
+			//创建一个图像标注实例。point参数指定了图像标注所在的地理位置
+			var mkr = new BMap.Marker(pointArray[i], {title: "title"});
+			//将覆盖物添加到地图中
+			map.addOverlay(mkr);
+		}		
+    });
+	
+	var local = new BMap.LocalSearch(map, {
+		renderOptions:{map: map}
+	});
+	$("#search").on('click',function(){
+		var keywords=$("#keywords").val().trim();
+		local.search(keywords);
+	});
+</script>
+
+<style type="text/css">
+	body, html{width: 100%;height:100%;margin:0;font-family:"微软雅黑";}
+	#allmap {height:860px; width: 100%;}
+	#control{height:25px;width:100%;}
+	#btn {
+	  width: 120px;
+	  height: 30px;
+	  text-align: center;
+	  line-height: 30px;
+	  background: skyblue;
+	  border-radius: 15px;
+	  color: #fff;
+	  font-weight: bold;
+	  margin: 0 auto;
+	  margin-top: 0px;
+	}
+	#location {
+	  text-align: center;
+	  font-size: 25px;
+	}
+	#location > #ipt-location {
+	  width: 99%;
+	  margin: 0 auto;
+	  line-height: 40px;
+	  border: 1px solid #ccc;
+	  margin-top: 25px;
+	}
+	#location > #ipt-location > dl {
+	  text-align: left;
+	  font-size: 0px;
+	}
+	#location > #ipt-location > dl > dt {
+	  display: inline-block;
+	  font-size: 16px;
+	  vertical-align: top;
+	}
+	#location > #ipt-location > dl > dt > input {
+	  height: 20px;
+	  border: 1px solid #ccc;
+	}
+	#location > #ipt-location > dl > dd {
+	  display: inline-block;
+	  font-size: 16px;
+	  vertical-align: top;
+	}
+	#location > #ipt-location > dl > dd > input {
+	  height: 20px;
+	  border: 1px solid #ccc;
+	}
+	#location > #ipt-location > #addPoint {
+	  width: 80px;
+	  height: 30px;
+	  font-size: 16px;
+	  border: 1px solid #87CEEB;
+	  vertical-align: top;
+	  line-height: 30px;
+	  margin: 0 auto;
+	  cursor: pointer;
+	}
+</style>
